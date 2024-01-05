@@ -11,6 +11,7 @@
   },
   "dependencies": {
     "@lexical/react": "^0.12.5",
+    "eslint-plugin-react": "^7.33.2",
     "lexical": "^0.12.5",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

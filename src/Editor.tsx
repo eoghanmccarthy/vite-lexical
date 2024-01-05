@@ -25,6 +25,9 @@ function onError(error) {
 function onChange(editorState) {
     console.log('onChange', editorState)
 
+    const stringifiedEditorState = JSON.stringify(editorState.toJSON());
+    console.log("stringifiedEditorState", stringifiedEditorState);
+
     editorState.read(() => {
         // Read the contents of the EditorState here.
         const root = $getRoot();
