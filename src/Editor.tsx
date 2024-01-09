@@ -73,7 +73,7 @@ export default function Editor() {
                     <ListPlugin />
                     <LinkPlugin />
                     <HistoryPlugin />
-                    <TreeViewPlugin />
+                    {/*<TreeViewPlugin />*/}
                 </div>
             </div>
         </LexicalComposer>
