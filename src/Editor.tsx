@@ -1,6 +1,5 @@
 import {$getRoot, $getSelection} from 'lexical';
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import {PlainTextPlugin} from '@lexical/react/LexicalPlainTextPlugin';
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -12,7 +11,6 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
-import TreeViewPlugin from "./plugins/TreeViewPlugin.tsx";
 import ToolbarPlugin from "./plugins/ToolbarPlugin.tsx";
 import theme from "./theme";
 
@@ -40,8 +38,6 @@ function onChange(editorState) {
 export default function Editor() {
     const initialConfig = {
         namespace: 'MyEditor',
-        onError,
-        theme,
         nodes: [
             HeadingNode,
             QuoteNode,
@@ -51,7 +47,9 @@ export default function Editor() {
             CodeHighlightNode,
             AutoLinkNode,
             LinkNode
-        ]
+        ],
+        onError,
+        theme
     };
 
     return (
@@ -65,9 +63,9 @@ export default function Editor() {
                     {/*    ErrorBoundary={LexicalErrorBoundary}*/}
                     {/*/>*/}
                     <RichTextPlugin
+                        ErrorBoundary={LexicalErrorBoundary}
                         contentEditable={<ContentEditable className="editor-input" />}
                         placeholder={<Placeholder />}
-                        ErrorBoundary={LexicalErrorBoundary}
                     />
                     <OnChangePlugin onChange={onChange} />
                     <ListPlugin />
