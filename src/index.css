@@ -5,7 +5,12 @@ body {
   min-width: 320px;
   min-height: 100vh;
   background: #eee;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, ".SFNSText-Regular", sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    ".SFNSText-Regular",
+    sans-serif;
   font-weight: 500;
   line-height: 1.5;
   color-scheme: light dark;
