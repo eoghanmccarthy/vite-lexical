@@ -1,4 +1,4 @@
-import { $getRoot, $getSelection } from "lexical";
+import { $getRoot, $getSelection, createEditor } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
@@ -11,47 +11,51 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
+import { $generateHtmlFromNodes } from "@lexical/html";
 import ToolbarPlugin from "./plugins/ToolbarPlugin.tsx";
 import theme from "./theme";
 
 import "./editor.css";
 
-function onError(error) {
-  console.error(error);
-}
+const initialConfig = {
+  namespace: "MyEditor",
+  nodes: [
+    HeadingNode,
+    QuoteNode,
+    ListNode,
+    ListItemNode,
+    CodeNode,
+    CodeHighlightNode,
+    AutoLinkNode,
+    LinkNode,
+  ],
+  onError: (error) => {
+    console.error(error);
+  },
+  theme,
+};
 
-function onChange(editorState) {
-  console.log("onChange", editorState);
-
-  const stringifiedEditorState = JSON.stringify(editorState.toJSON());
-  console.log("stringifiedEditorState", stringifiedEditorState);
-
-  editorState.read(() => {
-    // Read the contents of the EditorState here.
-    const root = $getRoot();
-    const selection = $getSelection();
-
-    console.log(root, selection);
-  });
-}
+const editor = createEditor(initialConfig);
 
 export default function Editor() {
-  const initialConfig = {
-    namespace: "MyEditor",
-    nodes: [
-      HeadingNode,
-      QuoteNode,
-      ListNode,
-      ListItemNode,
-      CodeNode,
-      CodeHighlightNode,
-      AutoLinkNode,
-      LinkNode,
-    ],
-    onError,
-    theme,
-  };
+  function onChange(editorState) {
+    console.log("onChange", editorState);
 
+    const stringifiedEditorState = JSON.stringify(editorState.toJSON());
+    console.log("stringifiedEditorState", stringifiedEditorState);
+
+    editorState.read(() => {
+      // Read the contents of the EditorState here.
+      const root = $getRoot();
+      const selection = $getSelection();
+
+      const html = $generateHtmlFromNodes(root);
+
+      console.log(html);
+
+      console.log(root, selection);
+    });
+  }
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className="editor-container">
