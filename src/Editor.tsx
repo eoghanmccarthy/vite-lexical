@@ -1,7 +1,6 @@
 import * as React from "react";
-import { $getRoot, $getSelection, $insertNodes } from "lexical";
+import { $getRoot, $getSelection } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
-import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -13,7 +12,8 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
+import { $generateHtmlFromNodes } from "@lexical/html";
+import LoadHtmlPlugin from "./plugins/LoadHtmlPlugin.tsx";
 import ToolbarPlugin from "./plugins/ToolbarPlugin.tsx";
 import theme from "./theme";
 
@@ -42,40 +42,10 @@ function onChange(editorState, editor) {
     const root = $getRoot();
     const selection = $getSelection();
 
-    // https://github.com/facebook/lexical/issues/2325
-    // https://stackoverflow.com/questions/75292778/how-do-i-parse-the-html-from-the-lexical-editorstate-without-an-extra-lexical-ed
     const html = $generateHtmlFromNodes(editor);
     // save html to server
   });
 }
-
-const LoadHtmlPlugin = ({ htmlString }) => {
-  const firstRender = React.useRef(true);
-  const [editor] = useLexicalComposerContext();
-
-  React.useEffect(() => {
-    editor.update(() => {
-      if (!firstRender.current) {
-        return;
-      }
-
-      const parser = new DOMParser();
-      const dom = parser.parseFromString(htmlString, "text/html");
-
-      const nodes = $generateNodesFromDOM(editor, dom);
-
-      const root = $getRoot();
-      root.clear();
-      root.select();
-
-      $insertNodes(nodes);
-
-      firstRender.current = false;
-    });
-  }, []);
-
-  return null;
-};
 
 export default function Editor() {
   // mock html string from server
