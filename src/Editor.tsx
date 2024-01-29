@@ -45,22 +45,32 @@ function onChange(editorState, editor) {
     // https://github.com/facebook/lexical/issues/2325
     // https://stackoverflow.com/questions/75292778/how-do-i-parse-the-html-from-the-lexical-editorstate-without-an-extra-lexical-ed
     const html = $generateHtmlFromNodes(editor);
+    // save html to server
   });
 }
 
 const LoadHtmlPlugin = ({ htmlString }) => {
+  const firstRender = React.useRef(true);
   const [editor] = useLexicalComposerContext();
 
   React.useEffect(() => {
     editor.update(() => {
+      if (!firstRender.current) {
+        return;
+      }
+
       const parser = new DOMParser();
       const dom = parser.parseFromString(htmlString, "text/html");
 
       const nodes = $generateNodesFromDOM(editor, dom);
 
-      $getRoot().select();
+      const root = $getRoot();
+      root.clear();
+      root.select();
 
       $insertNodes(nodes);
+
+      firstRender.current = false;
     });
   }, []);
 
@@ -68,6 +78,7 @@ const LoadHtmlPlugin = ({ htmlString }) => {
 };
 
 export default function Editor() {
+  // mock html string from server
   const htmlString =
     '<p dir="ltr"><span style="white-space: pre-wrap;">Hello, World!</span></p>';
 
