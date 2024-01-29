@@ -1,5 +1,7 @@
-import { $getRoot, $getSelection, createEditor } from "lexical";
+import * as React from "react";
+import { $getRoot, $getSelection, $insertNodes } from "lexical";
 import { LexicalComposer } from "@lexical/react/LexicalComposer";
+import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext";
 import { RichTextPlugin } from "@lexical/react/LexicalRichTextPlugin";
 import { ContentEditable } from "@lexical/react/LexicalContentEditable";
 import { HistoryPlugin } from "@lexical/react/LexicalHistoryPlugin";
@@ -11,7 +13,7 @@ import { HeadingNode, QuoteNode } from "@lexical/rich-text";
 import { ListItemNode, ListNode } from "@lexical/list";
 import { CodeHighlightNode, CodeNode } from "@lexical/code";
 import { AutoLinkNode, LinkNode } from "@lexical/link";
-import { $generateHtmlFromNodes } from "@lexical/html";
+import { $generateHtmlFromNodes, $generateNodesFromDOM } from "@lexical/html";
 import ToolbarPlugin from "./plugins/ToolbarPlugin.tsx";
 import theme from "./theme";
 
@@ -35,37 +37,45 @@ const initialConfig = {
   theme,
 };
 
-const editor = createEditor(initialConfig);
+function onChange(editorState, editor) {
+  editorState.read(() => {
+    const root = $getRoot();
+    const selection = $getSelection();
+
+    // https://github.com/facebook/lexical/issues/2325
+    // https://stackoverflow.com/questions/75292778/how-do-i-parse-the-html-from-the-lexical-editorstate-without-an-extra-lexical-ed
+    const html = $generateHtmlFromNodes(editor);
+  });
+}
+
+const LoadHtmlPlugin = ({ htmlString }) => {
+  const [editor] = useLexicalComposerContext();
+
+  React.useEffect(() => {
+    editor.update(() => {
+      const parser = new DOMParser();
+      const dom = parser.parseFromString(htmlString, "text/html");
+
+      const nodes = $generateNodesFromDOM(editor, dom);
+
+      $getRoot().select();
+
+      $insertNodes(nodes);
+    });
+  }, []);
+
+  return null;
+};
 
 export default function Editor() {
-  function onChange(editorState) {
-    console.log("onChange", editorState);
+  const htmlString =
+    '<p dir="ltr"><span style="white-space: pre-wrap;">Hello, World!</span></p>';
 
-    const stringifiedEditorState = JSON.stringify(editorState.toJSON());
-    console.log("stringifiedEditorState", stringifiedEditorState);
-
-    editorState.read(() => {
-      // Read the contents of the EditorState here.
-      const root = $getRoot();
-      const selection = $getSelection();
-
-      const html = $generateHtmlFromNodes(root);
-
-      console.log(html);
-
-      console.log(root, selection);
-    });
-  }
   return (
     <LexicalComposer initialConfig={initialConfig}>
       <div className="editor-container">
         <ToolbarPlugin />
         <div className="editor-inner">
-          {/*<PlainTextPlugin*/}
-          {/*    contentEditable={<ContentEditable />}*/}
-          {/*    placeholder={<div>Enter some text...</div>}*/}
-          {/*    ErrorBoundary={LexicalErrorBoundary}*/}
-          {/*/>*/}
           <RichTextPlugin
             ErrorBoundary={LexicalErrorBoundary}
             contentEditable={<ContentEditable className="editor-input" />}
@@ -75,7 +85,7 @@ export default function Editor() {
           <ListPlugin />
           <LinkPlugin />
           <HistoryPlugin />
-          {/*<TreeViewPlugin />*/}
+          <LoadHtmlPlugin htmlString={htmlString} />
         </div>
       </div>
     </LexicalComposer>
