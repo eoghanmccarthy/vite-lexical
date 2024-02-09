@@ -49,8 +49,7 @@ function onChange(editorState, editor) {
 
 export default function Editor() {
   // mock html string from server
-  const htmlString =
-    '<p dir="ltr"><span style="white-space: pre-wrap;">Hello, World!</span></p>';
+  const htmlString = "<p><span>Hello, World!</span></p>";
 
   return (
     <LexicalComposer initialConfig={initialConfig}>

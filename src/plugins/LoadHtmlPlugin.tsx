@@ -3,7 +3,7 @@ import { useLexicalComposerContext } from "@lexical/react/LexicalComposerContext
 import { $generateNodesFromDOM } from "@lexical/html";
 import { $getRoot, $insertNodes } from "lexical";
 
-const LoadHtmlPlugin = ({ htmlString }: { htmlString: string }) => {
+const LoadHtmlPlugin = ({ htmlString = "" }: { htmlString: string }) => {
   const firstRender = React.useRef(true);
   const [editor] = useLexicalComposerContext();
 
